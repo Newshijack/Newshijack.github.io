@@ -18,7 +18,6 @@
             overflow-x: hidden;
         }
 
-        /* Interactive Particle Background */
         #canvas-bg {
             position: fixed;
             top: 0;
@@ -29,7 +28,6 @@
             pointer-events: none;
         }
 
-        /* UI Layer */
         .content-wrapper {
             position: relative;
             z-index: 1;
@@ -98,6 +96,14 @@
             text-shadow: 0 0 10px rgba(255, 0, 255, 0.8);
         }
 
+        .tab-btn.active-fractions {
+            background: rgba(255, 138, 0, 0.15);
+            border-color: #ff8a00;
+            color: #ffffff;
+            box-shadow: 0 0 20px rgba(255, 138, 0, 0.4);
+            text-shadow: 0 0 10px rgba(255, 138, 0, 0.8);
+        }
+
         .grid-layout {
             display: none;
             flex-wrap: wrap;
@@ -150,20 +156,17 @@
             z-index: -1;
         }
 
-        /* Disable complex hover effects on touch devices to prevent sticky hover states */
         @media (hover: hover) {
             .glass-panel:hover {
                 box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 40px var(--glow-color);
                 border-color: rgba(255, 255, 255, 0.3);
             }
-            
             .data-row:hover {
                 background: rgba(255, 255, 255, 0.1);
                 border: 1px solid rgba(255, 255, 255, 0.2);
                 transform: scale(1.05) translateZ(10px);
                 box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             }
-            
             .data-row:hover .num, .data-row:hover .val {
                 color: var(--highlight-color);
                 text-shadow: 0 0 10px var(--highlight-color);
@@ -202,65 +205,42 @@
             cursor: default;
         }
 
-        .data-row .num {
-            font-weight: 500;
-            color: #8892b0;
-        }
+        .data-row .num { font-weight: 500; color: #8892b0; }
+        .data-row .val { font-weight: 700; color: #ffffff; letter-spacing: 0.5px; }
 
-        .data-row .val {
-            font-weight: 700;
-            color: #ffffff;
-            letter-spacing: 0.5px;
-        }
-
-        /* --- MOBILE RESPONSIVE CSS --- */
+        /* Mobile Adjustments */
         @media (max-width: 768px) {
-            .content-wrapper {
-                padding: 30px 15px;
-            }
-            h1 {
-                font-size: 2.2rem;
-                margin-bottom: 15px;
-            }
-            .tab-btn {
-                font-size: 0.9rem;
-                padding: 10px 20px;
-            }
-            .glass-panel {
-                width: 100%;
-                max-width: 320px; /* Forces cards to stack neatly on small screens */
-                padding: 20px 10px;
-            }
+            .content-wrapper { padding: 30px 15px; }
+            h1 { font-size: 2.2rem; margin-bottom: 15px; }
+            .tab-btn { font-size: 0.85rem; padding: 10px 15px; }
+            .glass-panel { width: 100%; max-width: 340px; padding: 20px 10px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Particle Network Background -->
     <canvas id="canvas-bg"></canvas>
 
-    <!-- Foreground Content -->
     <div class="content-wrapper">
         <h1 id="main-title">Mathematical Core Data</h1>
         
         <div class="tabs">
             <button id="btn-squares" class="tab-btn active">Squares (1-125)</button>
             <button id="btn-cubes" class="tab-btn">Cubes (1-30)</button>
+            <button id="btn-fractions" class="tab-btn">Percentages (1-25)</button>
         </div>
 
-        <!-- Squares Grid (Default Visible) -->
         <div class="grid-layout active-grid" id="grid-squares"></div>
-        
-        <!-- Cubes Grid (Hidden by Default) -->
         <div class="grid-layout" id="grid-cubes"></div>
+        <div class="grid-layout" id="grid-fractions"></div>
     </div>
 
     <script>
-        // --- 1. DATA GENERATION FOR SQUARES & CUBES ---
         const gridSquares = document.getElementById('grid-squares');
         const gridCubes = document.getElementById('grid-cubes');
+        const gridFractions = document.getElementById('grid-fractions');
         
-        // Color Themes
+        // Themes
         const squareThemes = [
             { glow: 'rgba(0, 242, 254, 0.4)', highlight: '#00f2fe' },
             { glow: 'rgba(255, 8, 68, 0.4)', highlight: '#ff0844' },
@@ -277,47 +257,74 @@
             { glow: 'rgba(255, 69, 0, 0.4)', highlight: '#ff4500' }
         ];
 
-        // Generate Squares (5 columns, 25 rows)
+        // 10 distinct neon colors for the 10 fraction columns
+        const fractionThemes = [
+            { glow: 'rgba(255, 51, 102, 0.4)', highlight: '#ff3366' }, // Neon Rose
+            { glow: 'rgba(0, 255, 170, 0.4)', highlight: '#00ffaa' }, // Mint
+            { glow: 'rgba(255, 138, 0, 0.4)', highlight: '#ff8a00' }, // Neon Orange
+            { glow: 'rgba(112, 0, 255, 0.4)', highlight: '#7000ff' }, // Deep Purple
+            { glow: 'rgba(255, 238, 0, 0.4)', highlight: '#ffee00' }, // Cyber Yellow
+            { glow: 'rgba(0, 195, 255, 0.4)', highlight: '#00c3ff' }, // Sky Blue
+            { glow: 'rgba(255, 0, 85, 0.4)', highlight: '#ff0055' }, // Hot Pink
+            { glow: 'rgba(170, 255, 0, 0.4)', highlight: '#aaff00' }, // Lime
+            { glow: 'rgba(0, 102, 255, 0.4)', highlight: '#0066ff' }, // Royal Blue
+            { glow: 'rgba(255, 0, 0, 0.4)', highlight: '#ff0000' }    // Pure Red
+        ];
+
+        // 1. Generate Squares
         let htmlSquares = '';
         for (let col = 0; col < 5; col++) {
             htmlSquares += `<div class="glass-panel" style="--glow-color: ${squareThemes[col].glow}; --highlight-color: ${squareThemes[col].highlight}">
-                        <div class="header-row"><span>No.</span><span>Square</span></div>
-                        <div class="data-list">`;
+                        <div class="header-row"><span>No.</span><span>Square</span></div><div class="data-list">`;
             for (let row = 1; row <= 25; row++) {
                 let num = col * 25 + row;
-                let square = (num * num).toLocaleString(); 
-                htmlSquares += `<div class="data-row"><span class="num">${num}</span><span class="val">${square}</span></div>`;
+                htmlSquares += `<div class="data-row"><span class="num">${num}</span><span class="val">${(num * num).toLocaleString()}</span></div>`;
             }
             htmlSquares += `</div></div>`;
         }
         gridSquares.innerHTML = htmlSquares;
 
-        // Generate Cubes (5 columns, 6 rows)
+        // 2. Generate Cubes
         let htmlCubes = '';
         for (let col = 0; col < 5; col++) {
             htmlCubes += `<div class="glass-panel" style="--glow-color: ${cubeThemes[col].glow}; --highlight-color: ${cubeThemes[col].highlight}">
-                        <div class="header-row"><span>No.</span><span>Cube</span></div>
-                        <div class="data-list">`;
+                        <div class="header-row"><span>No.</span><span>Cube</span></div><div class="data-list">`;
             for (let row = 1; row <= 6; row++) {
                 let num = col * 6 + row;
-                let cube = (num ** 3).toLocaleString(); 
-                htmlCubes += `<div class="data-row"><span class="num">${num}</span><span class="val">${cube}</span></div>`;
+                htmlCubes += `<div class="data-row"><span class="num">${num}</span><span class="val">${(num ** 3).toLocaleString()}</span></div>`;
             }
             htmlCubes += `</div></div>`;
         }
         gridCubes.innerHTML = htmlCubes;
 
-        // --- 2. TAB TOGGLE LOGIC ---
+        // 3. Generate Percentages (10 Columns, 25 Rows)
+        let htmlFractions = '';
+        for (let col = 1; col <= 10; col++) {
+            htmlFractions += `<div class="glass-panel" style="--glow-color: ${fractionThemes[col-1].glow}; --highlight-color: ${fractionThemes[col-1].highlight}">
+                        <div class="header-row"><span>Fract.</span><span>Percentage</span></div><div class="data-list">`;
+            for (let row = 1; row <= 25; row++) {
+                let percentage = (col / row) * 100;
+                let formatted = Number.isInteger(percentage) ? percentage : percentage.toFixed(2);
+                htmlFractions += `<div class="data-row"><span class="num">${col}/${row}</span><span class="val">${formatted}%</span></div>`;
+            }
+            htmlFractions += `</div></div>`;
+        }
+        gridFractions.innerHTML = htmlFractions;
+
+        // TAB LOGIC
         const btnSquares = document.getElementById('btn-squares');
         const btnCubes = document.getElementById('btn-cubes');
+        const btnFractions = document.getElementById('btn-fractions');
         const title = document.getElementById('main-title');
-        let currentMode = 'squares'; // Tracks which background color to use for the mouse laser
+        let currentMode = 'squares';
 
         btnSquares.addEventListener('click', () => {
             btnSquares.className = 'tab-btn active';
             btnCubes.className = 'tab-btn';
+            btnFractions.className = 'tab-btn';
             gridSquares.classList.add('active-grid');
             gridCubes.classList.remove('active-grid');
+            gridFractions.classList.remove('active-grid');
             title.style.background = 'linear-gradient(to right, #00f2fe, #4facfe, #00f2fe)';
             title.style.webkitBackgroundClip = 'text';
             currentMode = 'squares';
@@ -326,14 +333,28 @@
         btnCubes.addEventListener('click', () => {
             btnCubes.className = 'tab-btn active-cubes';
             btnSquares.className = 'tab-btn';
+            btnFractions.className = 'tab-btn';
             gridCubes.classList.add('active-grid');
             gridSquares.classList.remove('active-grid');
+            gridFractions.classList.remove('active-grid');
             title.style.background = 'linear-gradient(to right, #ff00ff, #00ffff, #ccff00)';
             title.style.webkitBackgroundClip = 'text';
             currentMode = 'cubes';
         });
 
-        // --- 3. SMOOTH 3D TILT EFFECT (Disabled on small mobile screens for better scrolling) ---
+        btnFractions.addEventListener('click', () => {
+            btnFractions.className = 'tab-btn active-fractions';
+            btnSquares.className = 'tab-btn';
+            btnCubes.className = 'tab-btn';
+            gridFractions.classList.add('active-grid');
+            gridSquares.classList.remove('active-grid');
+            gridCubes.classList.remove('active-grid');
+            title.style.background = 'linear-gradient(to right, #ff8a00, #e52e71)';
+            title.style.webkitBackgroundClip = 'text';
+            currentMode = 'fractions';
+        });
+
+        // 3D TILT EFFECT
         const panels = document.querySelectorAll('.glass-panel');
         if (window.innerWidth > 768) {
             panels.forEach(panel => {
@@ -352,17 +373,14 @@
             });
         }
 
-        // --- 4. INTERACTIVE PARTICLE NETWORK (Mouse & Touch Supported) ---
+        // BACKGROUND PARTICLES
         const canvas = document.getElementById('canvas-bg');
         const ctx = canvas.getContext('2d');
         let width, height, particles = [];
         let pointer = { x: null, y: null, radius: 150 };
 
-        // Mouse Events
         window.addEventListener('mousemove', (e) => { pointer.x = e.clientX; pointer.y = e.clientY; });
         window.addEventListener('mouseout', () => { pointer.x = null; pointer.y = null; });
-        
-        // Touch Events for Mobile Interaction
         window.addEventListener('touchstart', (e) => { pointer.x = e.touches[0].clientX; pointer.y = e.touches[0].clientY; });
         window.addEventListener('touchmove', (e) => { pointer.x = e.touches[0].clientX; pointer.y = e.touches[0].clientY; });
         window.addEventListener('touchend', () => { pointer.x = null; pointer.y = null; });
@@ -406,7 +424,6 @@
 
         function animateParticles() {
             ctx.clearRect(0, 0, width, height);
-            
             for (let i = 0; i < particles.length; i++) {
                 particles[i].update();
                 particles[i].draw();
@@ -433,11 +450,12 @@
                     
                     if (distanceMouse < pointer.radius) {
                         ctx.beginPath();
-                        // Color switches based on the active tab
                         if (currentMode === 'squares') {
                             ctx.strokeStyle = `rgba(0, 242, 254, ${1 - distanceMouse/pointer.radius})`;
-                        } else {
+                        } else if (currentMode === 'cubes') {
                             ctx.strokeStyle = `rgba(255, 0, 255, ${1 - distanceMouse/pointer.radius})`;
+                        } else {
+                            ctx.strokeStyle = `rgba(255, 138, 0, ${1 - distanceMouse/pointer.radius})`;
                         }
                         ctx.lineWidth = 1;
                         ctx.moveTo(particles[i].x, particles[i].y);
