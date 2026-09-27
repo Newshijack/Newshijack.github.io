@@ -34,11 +34,11 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 50px 20px;
+            padding: 40px 15px;
         }
 
         h1 {
-            font-size: 3rem;
+            font-size: 2.8rem;
             font-weight: 700;
             background: linear-gradient(to right, #00f2fe, #4facfe, #00f2fe);
             -webkit-background-clip: text;
@@ -53,7 +53,7 @@
         /* Toggle Tabs */
         .tabs {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             margin-bottom: 40px;
             flex-wrap: wrap;
             justify-content: center;
@@ -63,10 +63,10 @@
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: rgba(255,255,255,0.7);
-            padding: 12px 25px;
+            padding: 10px 22px;
             border-radius: 30px;
             font-family: 'Outfit', sans-serif;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 500;
             cursor: pointer;
             backdrop-filter: blur(10px);
@@ -75,56 +75,40 @@
             letter-spacing: 1px;
         }
 
-        .tab-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-        }
+        .tab-btn:hover { background: rgba(255, 255, 255, 0.1); color: white; }
 
         .tab-btn.active {
-            background: rgba(0, 242, 254, 0.15);
-            border-color: #00f2fe;
-            color: #ffffff;
-            box-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
-            text-shadow: 0 0 10px rgba(0, 242, 254, 0.8);
+            background: rgba(0, 242, 254, 0.15); border-color: #00f2fe; color: #ffffff;
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.4); text-shadow: 0 0 10px rgba(0, 242, 254, 0.8);
         }
-
         .tab-btn.active-cubes {
-            background: rgba(255, 0, 255, 0.15);
-            border-color: #ff00ff;
-            color: #ffffff;
-            box-shadow: 0 0 20px rgba(255, 0, 255, 0.4);
-            text-shadow: 0 0 10px rgba(255, 0, 255, 0.8);
+            background: rgba(255, 0, 255, 0.15); border-color: #ff00ff; color: #ffffff;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.4); text-shadow: 0 0 10px rgba(255, 0, 255, 0.8);
         }
-
         .tab-btn.active-fractions {
-            background: rgba(255, 138, 0, 0.15);
-            border-color: #ff8a00;
-            color: #ffffff;
-            box-shadow: 0 0 20px rgba(255, 138, 0, 0.4);
-            text-shadow: 0 0 10px rgba(255, 138, 0, 0.8);
+            background: rgba(255, 138, 0, 0.15); border-color: #ff8a00; color: #ffffff;
+            box-shadow: 0 0 20px rgba(255, 138, 0, 0.4); text-shadow: 0 0 10px rgba(255, 138, 0, 0.8);
         }
 
         .grid-layout {
             display: none;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 30px;
+            gap: 25px;
             perspective: 1200px;
             max-width: 1600px;
             width: 100%;
-            animation: fadeIn 0.5s ease-in-out;
+            animation: fadeIn 0.4s ease-in-out;
         }
 
-        .grid-layout.active-grid {
-            display: flex;
-        }
+        .grid-layout.active-grid { display: flex; }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Frosted Glass Panels */
+        /* Standard Cards for Squares and Cubes */
         .glass-panel {
             background: rgba(20, 22, 28, 0.5);
             backdrop-filter: blur(16px);
@@ -133,87 +117,122 @@
             border-top: 1px solid rgba(255, 255, 255, 0.25);
             border-left: 1px solid rgba(255, 255, 255, 0.25);
             border-radius: 20px;
-            width: 240px;
-            padding: 25px 15px;
+            width: 220px;
+            padding: 20px 15px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.5), inset 0 0 20px rgba(255,255,255,0.02);
-            transform-style: preserve-3d;
-            transition: transform 0.1s ease, box-shadow 0.4s ease;
             position: relative;
-            overflow: hidden;
-        }
-
-        .glass-panel::before {
-            content: '';
-            position: absolute;
-            top: -50px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100px;
-            height: 100px;
-            background: var(--glow-color);
-            filter: blur(50px);
-            opacity: 0.5;
-            z-index: -1;
-        }
-
-        @media (hover: hover) {
-            .glass-panel:hover {
-                box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 40px var(--glow-color);
-                border-color: rgba(255, 255, 255, 0.3);
-            }
-            .data-row:hover {
-                background: rgba(255, 255, 255, 0.1);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                transform: scale(1.05) translateZ(10px);
-                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            }
-            .data-row:hover .num, .data-row:hover .val {
-                color: var(--highlight-color);
-                text-shadow: 0 0 10px var(--highlight-color);
-            }
         }
 
         .header-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 0 15px 15px;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 15px;
-            font-weight: 700;
-            color: rgba(255,255,255,0.6);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 0.9rem;
-            transform: translateZ(30px);
+            display: flex; justify-content: space-between; padding: 0 10px 12px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1); margin-bottom: 12px;
+            font-weight: 700; color: rgba(255,255,255,0.6); text-transform: uppercase;
+            letter-spacing: 1px; font-size: 0.85rem;
         }
 
-        .data-list {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            transform: translateZ(30px);
-        }
+        .data-list { display: flex; flex-direction: column; gap: 5px; }
 
         .data-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 15px;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid transparent;
-            transition: all 0.3s ease;
-            cursor: default;
+            display: flex; justify-content: space-between; padding: 8px 12px;
+            border-radius: 8px; background: rgba(255, 255, 255, 0.02);
+            border: 1px solid transparent; transition: all 0.2s ease;
         }
-
         .data-row .num { font-weight: 500; color: #8892b0; }
         .data-row .val { font-weight: 700; color: #ffffff; letter-spacing: 0.5px; }
 
+        @media (hover: hover) {
+            .data-row:hover {
+                background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);
+                transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            }
+            .data-row:hover .num, .data-row:hover .val {
+                color: var(--highlight-color); text-shadow: 0 0 10px var(--highlight-color);
+            }
+        }
+
+        /* --- NEW MASTER TABLE FOR FRACTIONS --- */
+        .master-table-container {
+            width: 100%;
+            max-width: 1200px;
+            overflow-x: auto; /* Allows horizontal swiping on mobile */
+            background: rgba(20, 22, 28, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            /* Custom scrollbar for desktop */
+            scrollbar-width: thin;
+            scrollbar-color: #ff8a00 rgba(255,255,255,0.05);
+        }
+
+        .master-table-container::-webkit-scrollbar { height: 10px; }
+        .master-table-container::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 0 0 16px 16px; }
+        .master-table-container::-webkit-scrollbar-thumb { background: #ff8a00; border-radius: 10px; }
+
+        .master-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            text-align: center;
+            font-size: 1.05rem;
+        }
+
+        .master-table th, .master-table td {
+            padding: 14px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            white-space: nowrap;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        /* Top Header Row (Numerators) */
+        .master-table th {
+            background: rgba(255, 138, 0, 0.15);
+            color: #ff8a00;
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            text-shadow: 0 0 8px rgba(255, 138, 0, 0.5);
+            border-bottom: 2px solid rgba(255, 138, 0, 0.3);
+        }
+
+        /* Frozen Left Column (Denominators) */
+        .master-table td:first-child, .master-table th:first-child {
+            position: sticky;
+            left: 0;
+            background: rgba(25, 28, 35, 0.95); /* Solid background to hide text sliding under it */
+            color: #ff8a00;
+            font-weight: 700;
+            z-index: 3;
+            border-right: 2px solid rgba(255, 138, 0, 0.3);
+        }
+
+        .master-table th:first-child { z-index: 4; }
+
+        .master-table tbody tr:hover td {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        @media (hover: hover) {
+            .master-table tbody td:not(:first-child):hover {
+                background: rgba(255, 138, 0, 0.2) !important;
+                color: #ffffff;
+                text-shadow: 0 0 10px #ff8a00;
+                transform: scale(1.1);
+                border-radius: 6px;
+                box-shadow: 0 0 15px rgba(255,138,0,0.4);
+                cursor: crosshair;
+            }
+        }
+
         /* Mobile Adjustments */
         @media (max-width: 768px) {
-            .content-wrapper { padding: 30px 15px; }
-            h1 { font-size: 2.2rem; margin-bottom: 15px; }
+            h1 { font-size: 2rem; }
             .tab-btn { font-size: 0.85rem; padding: 10px 15px; }
-            .glass-panel { width: 100%; max-width: 340px; padding: 20px 10px; }
+            .glass-panel { width: 100%; max-width: 340px; }
+            .master-table th, .master-table td { padding: 12px; font-size: 0.95rem; }
         }
     </style>
 </head>
@@ -240,41 +259,20 @@
         const gridCubes = document.getElementById('grid-cubes');
         const gridFractions = document.getElementById('grid-fractions');
         
-        // Themes
         const squareThemes = [
-            { glow: 'rgba(0, 242, 254, 0.4)', highlight: '#00f2fe' },
-            { glow: 'rgba(255, 8, 68, 0.4)', highlight: '#ff0844' },
-            { glow: 'rgba(155, 35, 234, 0.4)', highlight: '#b224ef' },
-            { glow: 'rgba(255, 175, 189, 0.4)', highlight: '#ffc3a0' },
-            { glow: 'rgba(67, 233, 123, 0.4)', highlight: '#43e97b' }
+            { highlight: '#00f2fe' }, { highlight: '#ff0844' }, { highlight: '#b224ef' },
+            { highlight: '#ffc3a0' }, { highlight: '#43e97b' }
         ];
 
         const cubeThemes = [
-            { glow: 'rgba(255, 0, 255, 0.4)', highlight: '#ff00ff' },
-            { glow: 'rgba(255, 204, 0, 0.4)', highlight: '#ffcc00' },
-            { glow: 'rgba(57, 255, 20, 0.4)', highlight: '#39ff14' },
-            { glow: 'rgba(0, 153, 255, 0.4)', highlight: '#0099ff' },
-            { glow: 'rgba(255, 69, 0, 0.4)', highlight: '#ff4500' }
-        ];
-
-        // 10 distinct neon colors for the 10 fraction columns
-        const fractionThemes = [
-            { glow: 'rgba(255, 51, 102, 0.4)', highlight: '#ff3366' }, // Neon Rose
-            { glow: 'rgba(0, 255, 170, 0.4)', highlight: '#00ffaa' }, // Mint
-            { glow: 'rgba(255, 138, 0, 0.4)', highlight: '#ff8a00' }, // Neon Orange
-            { glow: 'rgba(112, 0, 255, 0.4)', highlight: '#7000ff' }, // Deep Purple
-            { glow: 'rgba(255, 238, 0, 0.4)', highlight: '#ffee00' }, // Cyber Yellow
-            { glow: 'rgba(0, 195, 255, 0.4)', highlight: '#00c3ff' }, // Sky Blue
-            { glow: 'rgba(255, 0, 85, 0.4)', highlight: '#ff0055' }, // Hot Pink
-            { glow: 'rgba(170, 255, 0, 0.4)', highlight: '#aaff00' }, // Lime
-            { glow: 'rgba(0, 102, 255, 0.4)', highlight: '#0066ff' }, // Royal Blue
-            { glow: 'rgba(255, 0, 0, 0.4)', highlight: '#ff0000' }    // Pure Red
+            { highlight: '#ff00ff' }, { highlight: '#ffcc00' }, { highlight: '#39ff14' },
+            { highlight: '#0099ff' }, { highlight: '#ff4500' }
         ];
 
         // 1. Generate Squares
         let htmlSquares = '';
         for (let col = 0; col < 5; col++) {
-            htmlSquares += `<div class="glass-panel" style="--glow-color: ${squareThemes[col].glow}; --highlight-color: ${squareThemes[col].highlight}">
+            htmlSquares += `<div class="glass-panel" style="--highlight-color: ${squareThemes[col].highlight}">
                         <div class="header-row"><span>No.</span><span>Square</span></div><div class="data-list">`;
             for (let row = 1; row <= 25; row++) {
                 let num = col * 25 + row;
@@ -287,7 +285,7 @@
         // 2. Generate Cubes
         let htmlCubes = '';
         for (let col = 0; col < 5; col++) {
-            htmlCubes += `<div class="glass-panel" style="--glow-color: ${cubeThemes[col].glow}; --highlight-color: ${cubeThemes[col].highlight}">
+            htmlCubes += `<div class="glass-panel" style="--highlight-color: ${cubeThemes[col].highlight}">
                         <div class="header-row"><span>No.</span><span>Cube</span></div><div class="data-list">`;
             for (let row = 1; row <= 6; row++) {
                 let num = col * 6 + row;
@@ -297,19 +295,33 @@
         }
         gridCubes.innerHTML = htmlCubes;
 
-        // 3. Generate Percentages (10 Columns, 25 Rows)
-        let htmlFractions = '';
+        // 3. Generate Master Table for Percentages (Fractions)
+        let htmlFractions = `<div class="master-table-container">
+                                <table class="master-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Denom \\ Num</th>`;
+        
+        // Header Row (Numerators 1 to 10)
         for (let col = 1; col <= 10; col++) {
-            htmlFractions += `<div class="glass-panel" style="--glow-color: ${fractionThemes[col-1].glow}; --highlight-color: ${fractionThemes[col-1].highlight}">
-                        <div class="header-row"><span>Fract.</span><span>Percentage</span></div><div class="data-list">`;
-            for (let row = 1; row <= 25; row++) {
+            htmlFractions += `<th>${col}</th>`;
+        }
+        htmlFractions += `</tr></thead><tbody>`;
+        
+        // Data Rows (Denominators 1 to 25)
+        for (let row = 1; row <= 25; row++) {
+            htmlFractions += `<tr>
+                                <td>/ ${row}</td>`;
+            for (let col = 1; col <= 10; col++) {
                 let percentage = (col / row) * 100;
                 let formatted = Number.isInteger(percentage) ? percentage : percentage.toFixed(2);
-                htmlFractions += `<div class="data-row"><span class="num">${col}/${row}</span><span class="val">${formatted}%</span></div>`;
+                htmlFractions += `<td>${formatted}%</td>`;
             }
-            htmlFractions += `</div></div>`;
+            htmlFractions += `</tr>`;
         }
+        htmlFractions += `</tbody></table></div>`;
         gridFractions.innerHTML = htmlFractions;
+
 
         // TAB LOGIC
         const btnSquares = document.getElementById('btn-squares');
@@ -354,24 +366,6 @@
             currentMode = 'fractions';
         });
 
-        // 3D TILT EFFECT
-        const panels = document.querySelectorAll('.glass-panel');
-        if (window.innerWidth > 768) {
-            panels.forEach(panel => {
-                panel.addEventListener('mousemove', (e) => {
-                    const rect = panel.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-                    const rotateX = ((y - (rect.height / 2)) / (rect.height / 2)) * -8;
-                    const rotateY = ((x - (rect.width / 2)) / (rect.width / 2)) * 8;
-                    panel.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
-                });
-                
-                panel.addEventListener('mouseleave', () => {
-                    panel.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
-                });
-            });
-        }
 
         // BACKGROUND PARTICLES
         const canvas = document.getElementById('canvas-bg');
