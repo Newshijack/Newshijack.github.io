@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ultimate Math Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap');
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100vh;
+            background-color: #030305;
+            font-family: 'Outfit', sans-serif;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        /* Interactive Particle Background */
+        #canvas-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* UI Layer */
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px 20px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #00f2fe, #4facfe, #00f2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            text-align: center;
+            text-shadow: 0 10px 30px rgba(79, 172, 254, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        /* Toggle Tabs */
+        .tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255,255,255,0.7);
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .tab-btn.active {
+            background: rgba(0, 242, 254, 0.15);
+            border-color: #00f2fe;
+            color: #ffffff;
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.8);
+        }
+
+        .tab-btn.active-cubes {
+            background: rgba(255, 0, 255, 0.15);
+            border-color: #ff00ff;
+            color: #ffffff;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.4);
+            text-shadow: 0 0 10px rgba(255, 0, 255, 0.8);
+        }
+
+        .grid-layout {
+            display: none;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            perspective: 1200px;
+            max-width: 1600px;
+            width: 100%;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .grid-layout.active-grid {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Frosted Glass Panels */
+        .glass-panel {
+            background: rgba(20, 22, 28, 0.5);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 1px solid rgba(255, 255, 255, 0.25);
+            border-left: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 20px;
+            width: 240px;
+            padding: 25px 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5), inset 0 0 20px rgba(255,255,255,0.02);
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease, box-shadow 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 100px;
+            background: var(--glow-color);
+            filter: blur(50px);
+            opacity: 0.5;
+            z-index: -1;
+        }
+
+        /* Disable complex hover effects on touch devices to prevent sticky hover states */
+        @media (hover: hover) {
+            .glass-panel:hover {
+                box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 40px var(--glow-color);
+                border-color: rgba(255, 255, 255, 0.3);
+            }
+            
+            .data-row:hover {
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                transform: scale(1.05) translateZ(10px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            }
+            
+            .data-row:hover .num, .data-row:hover .val {
+                color: var(--highlight-color);
+                text-shadow: 0 0 10px var(--highlight-color);
+            }
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 15px 15px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 15px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            transform: translateZ(30px);
+        }
+
+        .data-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transform: translateZ(30px);
+        }
+
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 15px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+
+        .data-row .num {
+            font-weight: 500;
+            color: #8892b0;
+        }
+
+        .data-row .val {
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 0.5px;
+        }
+
+        /* --- MOBILE RESPONSIVE CSS --- */
+        @media (max-width: 768px) {
+            .content-wrapper {
+                padding: 30px 15px;
+            }
+            h1 {
+                font-size: 2.2rem;
+                margin-bottom: 15px;
+            }
+            .tab-btn {
+                font-size: 0.9rem;
+                padding: 10px 20px;
+            }
+            .glass-panel {
+                width: 100%;
+                max-width: 320px; /* Forces cards to stack neatly on small screens */
+                padding: 20px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Particle Network Background -->
+    <canvas id="canvas-bg"></canvas>
+
+    <!-- Foreground Content -->
+    <div class="content-wrapper">
+        <h1 id="main-title">Mathematical Core Data</h1>
+        
+        <div class="tabs">
+            <button id="btn-squares" class="tab-btn active">Squares (1-125)</button>
+            <button id="btn-cubes" class="tab-btn">Cubes (1-30)</button>
+        </div>
+
+        <!-- Squares Grid (Default Visible) -->
+        <div class="grid-layout active-grid" id="grid-squares"></div>
+        
+        <!-- Cubes Grid (Hidden by Default) -->
+        <div class="grid-layout" id="grid-cubes"></div>
+    </div>
+
+    <script>
+        // --- 1. DATA GENERATION FOR SQUARES & CUBES ---
+        const gridSquares = document.getElementById('grid-squares');
+        const gridCubes = document.getElementById('grid-cubes');
+        
+        // Color Themes
+        const squareThemes = [
+            { glow: 'rgba(0, 242, 254, 0.4)', highlight: '#00f2fe' },
+            { glow: 'rgba(255, 8, 68, 0.4)', highlight: '#ff0844' },
+            { glow: 'rgba(155, 35, 234, 0.4)', highlight: '#b224ef' },
+            { glow: 'rgba(255, 175, 189, 0.4)', highlight: '#ffc3a0' },
+            { glow: 'rgba(67, 233, 123, 0.4)', highlight: '#43e97b' }
+        ];
+
+        const cubeThemes = [
+            { glow: 'rgba(255, 0, 255, 0.4)', highlight: '#ff00ff' },
+            { glow: 'rgba(255, 204, 0, 0.4)', highlight: '#ffcc00' },
+            { glow: 'rgba(57, 255, 20, 0.4)', highlight: '#39ff14' },
+            { glow: 'rgba(0, 153, 255, 0.4)', highlight: '#0099ff' },
+            { glow: 'rgba(255, 69, 0, 0.4)', highlight: '#ff4500' }
+        ];
+
+        // Generate Squares (5 columns, 25 rows)
+        let htmlSquares = '';
+        for (let col = 0; col < 5; col++) {
+            htmlSquares += `<div class="glass-panel" style="--glow-color: ${squareThemes[col].glow}; --highlight-color: ${squareThemes[col].highlight}">
+                        <div class="header-row"><span>No.</span><span>Square</span></div>
+                        <div class="data-list">`;
+            for (let row = 1; row <= 25; row++) {
+                let num = col * 25 + row;
+                let square = (num * num).toLocaleString(); 
+                htmlSquares += `<div class="data-row"><span class="num">${num}</span><span class="val">${square}</span></div>`;
+            }
+            htmlSquares += `</div></div>`;
+        }
+        gridSquares.innerHTML = htmlSquares;
+
+        // Generate Cubes (5 columns, 6 rows)
+        let htmlCubes = '';
+        for (let col = 0; col < 5; col++) {
+            htmlCubes += `<div class="glass-panel" style="--glow-color: ${cubeThemes[col].glow}; --highlight-color: ${cubeThemes[col].highlight}">
+                        <div class="header-row"><span>No.</span><span>Cube</span></div>
+                        <div class="data-list">`;
+            for (let row = 1; row <= 6; row++) {
+                let num = col * 6 + row;
+                let cube = (num ** 3).toLocaleString(); 
+                htmlCubes += `<div class="data-row"><span class="num">${num}</span><span class="val">${cube}</span></div>`;
+            }
+            htmlCubes += `</div></div>`;
+        }
+        gridCubes.innerHTML = htmlCubes;
+
+        // --- 2. TAB TOGGLE LOGIC ---
+        const btnSquares = document.getElementById('btn-squares');
+        const btnCubes = document.getElementById('btn-cubes');
+        const title = document.getElementById('main-title');
+        let currentMode = 'squares'; // Tracks which background color to use for the mouse laser
+
+        btnSquares.addEventListener('click', () => {
+            btnSquares.className = 'tab-btn active';
+            btnCubes.className = 'tab-btn';
+            gridSquares.classList.add('active-grid');
+            gridCubes.classList.remove('active-grid');
+            title.style.background = 'linear-gradient(to right, #00f2fe, #4facfe, #00f2fe)';
+            title.style.webkitBackgroundClip = 'text';
+            currentMode = 'squares';
+        });
+
+        btnCubes.addEventListener('click', () => {
+            btnCubes.className = 'tab-btn active-cubes';
+            btnSquares.className = 'tab-btn';
+            gridCubes.classList.add('active-grid');
+            gridSquares.classList.remove('active-grid');
+            title.style.background = 'linear-gradient(to right, #ff00ff, #00ffff, #ccff00)';
+            title.style.webkitBackgroundClip = 'text';
+            currentMode = 'cubes';
+        });
+
+        // --- 3. SMOOTH 3D TILT EFFECT (Disabled on small mobile screens for better scrolling) ---
+        const panels = document.querySelectorAll('.glass-panel');
+        if (window.innerWidth > 768) {
+            panels.forEach(panel => {
+                panel.addEventListener('mousemove', (e) => {
+                    const rect = panel.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const rotateX = ((y - (rect.height / 2)) / (rect.height / 2)) * -8;
+                    const rotateY = ((x - (rect.width / 2)) / (rect.width / 2)) * 8;
+                    panel.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+                });
+                
+                panel.addEventListener('mouseleave', () => {
+                    panel.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+                });
+            });
+        }
+
+        // --- 4. INTERACTIVE PARTICLE NETWORK (Mouse & Touch Supported) ---
+        const canvas = document.getElementById('canvas-bg');
+        const ctx = canvas.getContext('2d');
+        let width, height, particles = [];
+        let pointer = { x: null, y: null, radius: 150 };
+
+        // Mouse Events
+        window.addEventListener('mousemove', (e) => { pointer.x = e.clientX; pointer.y = e.clientY; });
+        window.addEventListener('mouseout', () => { pointer.x = null; pointer.y = null; });
+        
+        // Touch Events for Mobile Interaction
+        window.addEventListener('touchstart', (e) => { pointer.x = e.touches[0].clientX; pointer.y = e.touches[0].clientY; });
+        window.addEventListener('touchmove', (e) => { pointer.x = e.touches[0].clientX; pointer.y = e.touches[0].clientY; });
+        window.addEventListener('touchend', () => { pointer.x = null; pointer.y = null; });
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            initParticles();
+        }
+        window.addEventListener('resize', resize);
+        
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = Math.random() * 1 - 0.5;
+                this.speedY = Math.random() * 1 - 0.5;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x > width || this.x < 0) this.speedX *= -1;
+                if (this.y > height || this.y < 0) this.speedY *= -1;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            let numberOfParticles = (width * height) / 9000;
+            for (let i = 0; i < numberOfParticles; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, width, height);
+            
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                
+                for (let j = i; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 100) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${0.15 - distance/1000})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+                
+                if (pointer.x != null) {
+                    const dxMouse = particles[i].x - pointer.x;
+                    const dyMouse = particles[i].y - pointer.y;
+                    const distanceMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
+                    
+                    if (distanceMouse < pointer.radius) {
+                        ctx.beginPath();
+                        // Color switches based on the active tab
+                        if (currentMode === 'squares') {
+                            ctx.strokeStyle = `rgba(0, 242, 254, ${1 - distanceMouse/pointer.radius})`;
+                        } else {
+                            ctx.strokeStyle = `rgba(255, 0, 255, ${1 - distanceMouse/pointer.radius})`;
+                        }
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(pointer.x, pointer.y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animateParticles);
+        }
+
+        resize();
+        animateParticles();
+    </script>
+</body>
+</html>
