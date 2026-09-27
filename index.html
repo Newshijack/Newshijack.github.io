@@ -4,9 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ultimate Math Dashboard</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap');
+    
+    <!-- Google Fonts -->
+    <style>@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap');</style>
+    
+    <!-- Three.js Library & OrbitControls -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
+    <style>
         body, html {
             margin: 0; padding: 0; width: 100%; min-height: 100vh;
             background-color: #030305; font-family: 'Outfit', sans-serif;
@@ -44,17 +50,17 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Squares and Cubes Cards */
+        /* General Data Panels */
         .glass-panel {
-            background: rgba(20, 22, 28, 0.5); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            background: rgba(20, 22, 28, 0.5); backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.08); border-top: 1px solid rgba(255, 255, 255, 0.25); border-left: 1px solid rgba(255, 255, 255, 0.25);
             border-radius: 20px; width: 220px; padding: 20px 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.5), inset 0 0 20px rgba(255,255,255,0.02);
         }
-        .header-row { display: flex; justify-content: space-between; padding: 0 10px 12px; border-bottom: 2px solid rgba(255, 255, 255, 0.1); margin-bottom: 12px; font-weight: 700; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px; font-size: 0.85rem; }
+        .header-row { display: flex; justify-content: space-between; padding: 0 10px 12px; border-bottom: 2px solid rgba(255, 255, 255, 0.1); margin-bottom: 12px; font-weight: 700; color: rgba(255,255,255,0.6); text-transform: uppercase; font-size: 0.85rem; }
         .data-list { display: flex; flex-direction: column; gap: 5px; }
         .data-row { display: flex; justify-content: space-between; padding: 8px 12px; border-radius: 8px; background: rgba(255, 255, 255, 0.02); border: 1px solid transparent; transition: all 0.2s ease; }
         .data-row .num { font-weight: 500; color: #8892b0; }
-        .data-row .val { font-weight: 700; color: #ffffff; letter-spacing: 0.5px; }
+        .data-row .val { font-weight: 700; color: #ffffff; }
 
         /* Fraction Table */
         .master-table-container { width: 100%; max-width: 1300px; overflow-x: auto; background: rgba(20, 22, 28, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); scrollbar-width: thin; scrollbar-color: var(--table-color) rgba(255,255,255,0.05); }
@@ -63,11 +69,11 @@
         .master-table-container::-webkit-scrollbar-thumb { background: var(--table-color); border-radius: 10px; }
         .master-table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: center; font-size: 1.05rem; }
         .master-table th, .master-table td { padding: 14px 18px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); border-right: 1px solid rgba(255, 255, 255, 0.05); white-space: nowrap; transition: background 0.2s, color 0.2s; }
-        .master-table th { background: rgba(255, 255, 255, 0.05); color: var(--table-color); font-weight: 700; position: sticky; top: 0; z-index: 2; text-shadow: 0 0 8px rgba(255, 255, 255, 0.2); border-bottom: 2px solid var(--table-color); }
+        .master-table th { background: rgba(255, 255, 255, 0.05); color: var(--table-color); font-weight: 700; position: sticky; top: 0; z-index: 2; border-bottom: 2px solid var(--table-color); }
         .master-table td:first-child, .master-table th:first-child { position: sticky; left: 0; background: rgba(25, 28, 35, 0.95); color: var(--table-color); font-weight: 700; z-index: 3; border-right: 2px solid var(--table-color); }
         .master-table th:first-child { z-index: 4; }
 
-        /* Shape Cards with SVGs */
+        /* Shape Cards */
         .shape-card {
             background: rgba(20, 22, 28, 0.5); backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.08); border-top: 1px solid rgba(255, 255, 255, 0.25); border-left: 1px solid rgba(255, 255, 255, 0.25);
@@ -75,16 +81,22 @@
             display: flex; flex-direction: column; gap: 15px; transition: transform 0.2s;
         }
         .shape-title { text-align: center; margin: 0; font-size: 1.3rem; font-weight: 700; color: #fff; letter-spacing: 1px; text-transform: uppercase; border-bottom: 2px solid var(--table-color); padding-bottom: 10px; }
-        .shape-img { height: 140px; display: flex; justify-content: center; align-items: center; color: var(--table-color); margin: 5px 0; }
+        
+        .shape-img { height: 160px; display: flex; justify-content: center; align-items: center; color: var(--table-color); margin: 5px 0; }
         .shape-img svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 0 8px var(--table-color)); }
+        
+        /* 3D specific canvas container styles */
+        .three-container { width: 100%; height: 180px; cursor: grab; display: flex; justify-content: center; align-items: center; outline: none; }
+        .three-container:active { cursor: grabbing; }
+        .three-container canvas { border-radius: 8px; }
+
         .formula-group { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px; font-size: 0.95rem; align-items: center; }
         .formula-group span:first-child { color: rgba(255,255,255,0.6); font-weight: 500; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
         .formula-group span:last-child { font-weight: 700; color: #fff; text-align: right; }
 
         @media (hover: hover) {
-            .data-row:hover { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+            .data-row:hover { background: rgba(255, 255, 255, 0.1); transform: scale(1.05); border: 1px solid rgba(255, 255, 255, 0.2); }
             .data-row:hover .num, .data-row:hover .val { color: var(--highlight-color); text-shadow: 0 0 10px var(--highlight-color); }
-            .master-table tbody td:not(:first-child):hover { background: rgba(255, 255, 255, 0.1) !important; color: #ffffff; text-shadow: 0 0 10px var(--table-color); box-shadow: inset 0 0 15px rgba(255,255,255,0.1); }
             .shape-card:hover { transform: scale(1.02); border-color: rgba(255,255,255,0.3); box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(255,255,255,0.05); }
         }
 
@@ -92,30 +104,10 @@
             h1 { font-size: 2rem; }
             .tab-btn { font-size: 0.85rem; padding: 10px 15px; }
             .glass-panel, .shape-card { width: 100%; max-width: 340px; }
-            .master-table th, .master-table td { padding: 12px; font-size: 0.95rem; }
         }
     </style>
 </head>
 <body>
-
-    <!-- Injecting SVG Gradients for 3D Shading Effects -->
-    <svg style="width:0; height:0; position:absolute;" aria-hidden="true" focusable="false">
-        <defs>
-            <radialGradient id="sphereGrad" cx="35%" cy="35%" r="65%">
-                <stop offset="0%" stop-color="rgba(255,255,255,0.7)"/>
-                <stop offset="100%" stop-color="rgba(255,255,255,0.05)"/>
-            </radialGradient>
-            <linearGradient id="cylGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="rgba(255,255,255,0.1)"/>
-                <stop offset="25%" stop-color="rgba(255,255,255,0.5)"/>
-                <stop offset="100%" stop-color="rgba(255,255,255,0.05)"/>
-            </linearGradient>
-            <linearGradient id="cylGradInner" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="rgba(0,0,0,0.6)"/>
-                <stop offset="100%" stop-color="rgba(255,255,255,0.2)"/>
-            </linearGradient>
-        </defs>
-    </svg>
 
     <canvas id="canvas-bg"></canvas>
 
@@ -134,6 +126,8 @@
         <div class="grid-layout" id="grid-cubes"></div>
         <div class="grid-layout" id="grid-fractions" style="--table-color: #ff8a00;"></div>
         <div class="grid-layout" id="grid-2d" style="--table-color: #39ff14;"></div>
+        
+        <!-- 3D Grid will hold the WebGL Canvases -->
         <div class="grid-layout" id="grid-3d" style="--table-color: #7000ff;"></div>
     </div>
 
@@ -188,73 +182,21 @@
         htmlFractions += `</tbody></table></div>`;
         gridFractions.innerHTML = htmlFractions;
 
-        // --- 4. 2D SHAPES ---
+        // --- 4. 2D SHAPES (SVG Based) ---
         const data2D = [
-            { 
-                name: "Rectangle", 
-                svg: `<svg viewBox="0 0 100 100"><rect x="10" y="30" width="80" height="40" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="2"/><text x="50" y="20" fill="currentColor" text-anchor="middle" font-size="12">l</text><text x="96" y="55" fill="currentColor" font-size="12">b</text><line x1="10" y1="70" x2="90" y2="30" stroke="currentColor" stroke-dasharray="4" stroke-width="1"/><text x="45" y="45" fill="currentColor" font-size="12">d</text></svg>`,
-                f1: ["Perimeter", "2(l + b)"], f2: ["Area", "l × b"], f3: ["Diagonal", "d = √(l² + b²)"]
-            },
-            { 
-                name: "Square", 
-                svg: `<svg viewBox="0 0 100 100"><rect x="25" y="25" width="50" height="50" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="2"/><text x="50" y="18" fill="currentColor" text-anchor="middle" font-size="12">a</text><line x1="25" y1="75" x2="75" y2="25" stroke="currentColor" stroke-dasharray="4" stroke-width="1"/><text x="45" y="45" fill="currentColor" font-size="12">d</text></svg>`,
-                f1: ["Perimeter", "4a"], f2: ["Area", "a² or d²/2"], f3: ["Diagonal", "d = a√2"]
-            },
-            { 
-                name: "Triangle", 
-                svg: `<svg viewBox="0 0 100 100"><polygon points="50,20 15,80 85,80" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="2"/><line x1="50" y1="20" x2="50" y2="80" stroke="currentColor" stroke-dasharray="4" stroke-width="1"/><text x="25" y="50" fill="currentColor" font-size="12">a</text><text x="75" y="50" fill="currentColor" font-size="12">c</text><text x="50" y="95" fill="currentColor" text-anchor="middle" font-size="12">b</text><text x="55" y="55" fill="currentColor" font-size="12">h</text></svg>`,
-                f1: ["Perimeter", "a + b + c"], f2: ["Area", "½ × b × h"], f3: ["Heron's Area", "√[s(s-a)(s-b)(s-c)]"]
-            },
-            { 
-                name: "Right Triangle", 
-                svg: `<svg viewBox="0 0 100 100"><polygon points="25,20 25,80 85,80" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="2"/><rect x="25" y="70" width="10" height="10" fill="none" stroke="currentColor" stroke-width="1"/><text x="12" y="55" fill="currentColor" font-size="12">h</text><text x="55" y="95" fill="currentColor" font-size="12">b</text><text x="60" y="45" fill="currentColor" font-size="12">c</text></svg>`,
-                f1: ["Perimeter", "b + h + c"], f2: ["Area", "½ × b × h"], f3: ["Hypotenuse", "c = √(b² + h²)"]
-            },
-            { 
-                name: "Equilateral Triangle", 
-                svg: `<svg viewBox="0 0 100 100"><polygon points="50,20 15,80 85,80" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="2"/><line x1="50" y1="20" x2="50" y2="80" stroke="currentColor" stroke-dasharray="4" stroke-width="1"/><text x="25" y="50" fill="currentColor" font-size="12">a</text><text x="75" y="50" fill="currentColor" font-size="12">a</text><text x="50" y="95" fill="currentColor" text-anchor="middle" font-size="12">a</text><text x="55" y="55" fill="currentColor" font-size="12">h</text></svg>`,
-                f1: ["Perimeter", "3a"], f2: ["Area", "(√3 / 4)a²"], f3: ["Height", "h = (√3 a) / 2"]
-            },
-            { 
-                name: "Isosceles Right Triangle", 
-                svg: `<svg viewBox="0 0 100 100"><polygon points="25,20 25,80 85,80" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="2"/><rect x="25" y="70" width="10" height="10" fill="none" stroke="currentColor" stroke-width="1"/><text x="12" y="55" fill="currentColor" font-size="12">a</text><text x="55" y="95" fill="currentColor" font-size="12">a</text><text x="60" y="45" fill="currentColor" font-size="12">c</text></svg>`,
-                f1: ["Perimeter", "2a + a√2"], f2: ["Area", "½ × a²"], f3: ["Hypotenuse", "c = a√2"]
-            },
-            { 
-                name: "Parallelogram", 
-                svg: `<svg viewBox="0 0 100 100"><polygon points="35,30 85,30 65,70 15,70" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="2"/><line x1="35" y1="30" x2="35" y2="70" stroke="currentColor" stroke-dasharray="4" stroke-width="1"/><rect x="35" y="65" width="5" height="5" fill="none" stroke="currentColor" stroke-width="1"/><text x="60" y="20" fill="currentColor" font-size="12">a</text><text x="80" y="55" fill="currentColor" font-size="12">b</text><text x="25" y="55" fill="currentColor" font-size="12">h</text></svg>`,
-                f1: ["Perimeter", "2(a + b)"], f2: ["Area", "a × h"], f3: ["", ""]
-            },
-            { 
-                name: "Rhombus", 
-                svg: `<svg viewBox="0 0 100 100"><polygon points="50,15 85,50 50,85 15,50" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="2"/><line x1="15" y1="50" x2="85" y2="50" stroke="currentColor" stroke-dasharray="4" stroke-width="1"/><line x1="50" y1="15" x2="50" y2="85" stroke="currentColor" stroke-dasharray="4" stroke-width="1"/><rect x="50" y="50" width="5" height="5" fill="none" stroke="currentColor" stroke-width="1"/><text x="25" y="30" fill="currentColor" font-size="12">a</text><text x="75" y="30" fill="currentColor" font-size="12">a</text><text x="60" y="45" fill="currentColor" font-size="10">d1</text><text x="55" y="65" fill="currentColor" font-size="10">d2</text></svg>`,
-                f1: ["Perimeter", "4a"], f2: ["Area", "½ × d1 × d2"], f3: ["Side", "a = √[(d1/2)² + (d2/2)²]"]
-            },
-            { 
-                name: "Trapezium", 
-                svg: `<svg viewBox="0 0 100 100"><polygon points="35,25 65,25 85,75 15,75" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="2"/><line x1="35" y1="25" x2="35" y2="75" stroke="currentColor" stroke-dasharray="4" stroke-width="1"/><rect x="35" y="70" width="5" height="5" fill="none" stroke="currentColor" stroke-width="1"/><text x="50" y="15" fill="currentColor" font-size="12">b</text><text x="50" y="90" fill="currentColor" font-size="12">a</text><text x="25" y="55" fill="currentColor" font-size="12">h</text></svg>`,
-                f1: ["Perimeter", "Sum of 4 sides"], f2: ["Area", "½ × h × (a + b)"], f3: ["", ""]
-            },
-            { 
-                name: "Circle", 
-                svg: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="35" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="2"/><circle cx="50" cy="50" r="2" fill="currentColor"/><line x1="50" y1="50" x2="85" y2="50" stroke="currentColor" stroke-width="1"/><text x="65" y="45" fill="currentColor" font-size="12">r</text></svg>`,
-                f1: ["Perimeter", "2πr"], f2: ["Area", "πr²"], f3: ["", ""]
-            },
-            { 
-                name: "Semicircle", 
-                svg: `<svg viewBox="0 0 100 100"><path d="M15,65 A35,35 0 0,1 85,65 Z" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="2"/><circle cx="50" cy="65" r="2" fill="currentColor"/><line x1="50" y1="65" x2="85" y2="65" stroke="currentColor" stroke-dasharray="4" stroke-width="1"/><text x="65" y="60" fill="currentColor" font-size="12">r</text></svg>`,
-                f1: ["Perimeter", "πr + 2r"], f2: ["Area", "½ × πr²"], f3: ["", ""]
-            },
-            { 
-                name: "Disc (Ring)", 
-                svg: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="2"/><circle cx="50" cy="50" r="20" fill="#030305" stroke="currentColor" stroke-width="2"/><circle cx="50" cy="50" r="2" fill="currentColor"/><line x1="50" y1="50" x2="90" y2="50" stroke="currentColor" stroke-width="1"/><line x1="50" y1="50" x2="64" y2="64" stroke="currentColor" stroke-width="1"/><text x="70" y="45" fill="currentColor" font-size="12">a</text><text x="45" y="65" fill="currentColor" font-size="12">b</text></svg>`,
-                f1: ["Perimeter", "-"], f2: ["Area", "π(a² - b²)" ], f3: ["", ""]
-            },
-            { 
-                name: "Sector", 
-                svg: `<svg viewBox="0 0 100 100"><path d="M50,80 L15,20 A55,55 0 0,1 85,20 Z" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="2"/><text x="25" y="55" fill="currentColor" font-size="12">r</text><text x="75" y="55" fill="currentColor" font-size="12">r</text><text x="50" y="12" fill="currentColor" font-size="12">a</text><text x="50" y="60" fill="currentColor" font-size="10">θ</text></svg>`,
-                f1: ["Perimeter", "a + 2r"], f2: ["Area", "(θ/360°) × πr²"], f3: ["Arc (a)", "a = (θ/360°) × 2πr"]
-            }
+            { name: "Rectangle", svg: `<svg viewBox="0 0 100 100"><rect x="10" y="30" width="80" height="40" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="2"/><text x="50" y="20" fill="currentColor" text-anchor="middle" font-size="12">l</text><text x="96" y="55" fill="currentColor" font-size="12">b</text><line x1="10" y1="70" x2="90" y2="30" stroke="currentColor" stroke-dasharray="4" stroke-width="1"/><text x="45" y="45" fill="currentColor" font-size="12">d</text></svg>`, f1: ["Perimeter", "2(l + b)"], f2: ["Area", "l × b"], f3: ["Diagonal", "d = √(l² + b²)"] },
+            { name: "Square", svg: `<svg viewBox="0 0 100 100"><rect x="25" y="25" width="50" height="50" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="2"/><text x="50" y="18" fill="currentColor" text-anchor="middle" font-size="12">a</text><line x1="25" y1="75" x2="75" y2="25" stroke="currentColor" stroke-dasharray="4" stroke-width="1"/><text x="45" y="45" fill="currentColor" font-size="12">d</text></svg>`, f1: ["Perimeter", "4a"], f2: ["Area", "a² or d²/2"], f3: ["Diagonal", "d = a√2"] },
+            { name: "Triangle", svg: `<svg viewBox="0 0 100 100"><polygon points="50,20 15,80 85,80" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="2"/><line x1="50" y1="20" x2="50" y2="80" stroke="currentColor" stroke-dasharray="4" stroke-width="1"/><text x="25" y="50" fill="currentColor" font-size="12">a</text><text x="75" y="50" fill="currentColor" font-size="12">c</text><text x="50" y="95" fill="currentColor" text-anchor="middle" font-size="12">b</text><text x="55" y="55" fill="currentColor" font-size="12">h</text></svg>`, f1: ["Perimeter", "a + b + c"], f2: ["Area", "½ × b × h"], f3: ["Heron's Area", "√[s(s-a)(s-b)(s-c)]"] },
+            { name: "Right Triangle", svg: `<svg viewBox="0 0 100 100"><polygon points="25,20 25,80 85,80" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="2"/><rect x="25" y="70" width="10" height="10" fill="none" stroke="currentColor" stroke-width="1"/><text x="12" y="55" fill="currentColor" font-size="12">h</text><text x="55" y="95" fill="currentColor" font-size="12">b</text><text x="60" y="45" fill="currentColor" font-size="12">c</text></svg>`, f1: ["Perimeter", "b + h + c"], f2: ["Area", "½ × b × h"], f3: ["Hypotenuse", "c = √(b² + h²)"] },
+            { name: "Equilateral Triangle", svg: `<svg viewBox="0 0 100 100"><polygon points="50,20 15,80 85,80" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="2"/><line x1="50" y1="20" x2="50" y2="80" stroke="currentColor" stroke-dasharray="4" stroke-width="1"/><text x="25" y="50" fill="currentColor" font-size="12">a</text><text x="75" y="50" fill="currentColor" font-size="12">a</text><text x="50" y="95" fill="currentColor" text-anchor="middle" font-size="12">a</text><text x="55" y="55" fill="currentColor" font-size="12">h</text></svg>`, f1: ["Perimeter", "3a"], f2: ["Area", "(√3 / 4)a²"], f3: ["Height", "h = (√3 a) / 2"] },
+            { name: "Isosceles Right Triangle", svg: `<svg viewBox="0 0 100 100"><polygon points="25,20 25,80 85,80" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="2"/><rect x="25" y="70" width="10" height="10" fill="none" stroke="currentColor" stroke-width="1"/><text x="12" y="55" fill="currentColor" font-size="12">a</text><text x="55" y="95" fill="currentColor" font-size="12">a</text><text x="60" y="45" fill="currentColor" font-size="12">c</text></svg>`, f1: ["Perimeter", "2a + a√2"], f2: ["Area", "½ × a²"], f3: ["Hypotenuse", "c = a√2"] },
+            { name: "Parallelogram", svg: `<svg viewBox="0 0 100 100"><polygon points="35,30 85,30 65,70 15,70" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="2"/><line x1="35" y1="30" x2="35" y2="70" stroke="currentColor" stroke-dasharray="4" stroke-width="1"/><rect x="35" y="65" width="5" height="5" fill="none" stroke="currentColor" stroke-width="1"/><text x="60" y="20" fill="currentColor" font-size="12">a</text><text x="80" y="55" fill="currentColor" font-size="12">b</text><text x="25" y="55" fill="currentColor" font-size="12">h</text></svg>`, f1: ["Perimeter", "2(a + b)"], f2: ["Area", "a × h"], f3: ["", ""] },
+            { name: "Rhombus", svg: `<svg viewBox="0 0 100 100"><polygon points="50,15 85,50 50,85 15,50" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="2"/><line x1="15" y1="50" x2="85" y2="50" stroke="currentColor" stroke-dasharray="4" stroke-width="1"/><line x1="50" y1="15" x2="50" y2="85" stroke="currentColor" stroke-dasharray="4" stroke-width="1"/><rect x="50" y="50" width="5" height="5" fill="none" stroke="currentColor" stroke-width="1"/><text x="25" y="30" fill="currentColor" font-size="12">a</text><text x="75" y="30" fill="currentColor" font-size="12">a</text><text x="60" y="45" fill="currentColor" font-size="10">d1</text><text x="55" y="65" fill="currentColor" font-size="10">d2</text></svg>`, f1: ["Perimeter", "4a"], f2: ["Area", "½ × d1 × d2"], f3: ["Side", "a = √[(d1/2)² + (d2/2)²]"] },
+            { name: "Trapezium", svg: `<svg viewBox="0 0 100 100"><polygon points="35,25 65,25 85,75 15,75" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="2"/><line x1="35" y1="25" x2="35" y2="75" stroke="currentColor" stroke-dasharray="4" stroke-width="1"/><rect x="35" y="70" width="5" height="5" fill="none" stroke="currentColor" stroke-width="1"/><text x="50" y="15" fill="currentColor" font-size="12">b</text><text x="50" y="90" fill="currentColor" font-size="12">a</text><text x="25" y="55" fill="currentColor" font-size="12">h</text></svg>`, f1: ["Perimeter", "Sum of 4 sides"], f2: ["Area", "½ × h × (a + b)"], f3: ["", ""] },
+            { name: "Circle", svg: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="35" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="2"/><circle cx="50" cy="50" r="2" fill="currentColor"/><line x1="50" y1="50" x2="85" y2="50" stroke="currentColor" stroke-width="1"/><text x="65" y="45" fill="currentColor" font-size="12">r</text></svg>`, f1: ["Perimeter", "2πr"], f2: ["Area", "πr²"], f3: ["", ""] },
+            { name: "Semicircle", svg: `<svg viewBox="0 0 100 100"><path d="M15,65 A35,35 0 0,1 85,65 Z" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="2"/><circle cx="50" cy="65" r="2" fill="currentColor"/><line x1="50" y1="65" x2="85" y2="65" stroke="currentColor" stroke-dasharray="4" stroke-width="1"/><text x="65" y="60" fill="currentColor" font-size="12">r</text></svg>`, f1: ["Perimeter", "πr + 2r"], f2: ["Area", "½ × πr²"], f3: ["", ""] },
+            { name: "Disc (Ring)", svg: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="2"/><circle cx="50" cy="50" r="20" fill="#030305" stroke="currentColor" stroke-width="2"/><circle cx="50" cy="50" r="2" fill="currentColor"/><line x1="50" y1="50" x2="90" y2="50" stroke="currentColor" stroke-width="1"/><line x1="50" y1="50" x2="64" y2="64" stroke="currentColor" stroke-width="1"/><text x="70" y="45" fill="currentColor" font-size="12">a</text><text x="45" y="65" fill="currentColor" font-size="12">b</text></svg>`, f1: ["Perimeter", "-"], f2: ["Area", "π(a² - b²)" ], f3: ["", ""] },
+            { name: "Sector", svg: `<svg viewBox="0 0 100 100"><path d="M50,80 L15,20 A55,55 0 0,1 85,20 Z" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="2"/><text x="25" y="55" fill="currentColor" font-size="12">r</text><text x="75" y="55" fill="currentColor" font-size="12">r</text><text x="50" y="12" fill="currentColor" font-size="12">a</text><text x="50" y="60" fill="currentColor" font-size="10">θ</text></svg>`, f1: ["Perimeter", "a + 2r"], f2: ["Area", "(θ/360°) × πr²"], f3: ["Arc (a)", "a = (θ/360°) × 2πr"] }
         ];
 
         let html2D = '';
@@ -269,124 +211,135 @@
         });
         grid2d.innerHTML = html2D;
 
-        // --- 5. 3D SHAPES (Updated with Shading Gradients) ---
+        // --- 5. 3D SHAPES (Data Structure for WebGL Canvases) ---
         const data3D = [
-            {
-                name: "Cuboid",
-                svg: `<svg viewBox="0 0 100 100">
-                    <path d="M35,25 L35,65 L85,65" fill="none" stroke="rgba(255,255,255,0.2)" stroke-dasharray="4" stroke-width="1"/>
-                    <path d="M20,85 L35,65" fill="none" stroke="rgba(255,255,255,0.2)" stroke-dasharray="4" stroke-width="1"/>
-                    <polygon points="35,25 85,25 70,45 20,45" fill="rgba(255,255,255,0.3)" stroke="currentColor" stroke-width="1"/>
-                    <polygon points="70,45 85,25 85,65 70,85" fill="rgba(255,255,255,0.15)" stroke="currentColor" stroke-width="1"/>
-                    <polygon points="20,45 70,45 70,85 20,85" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="1"/>
-                    <text x="45" y="98" fill="currentColor" font-size="12">l</text>
-                    <text x="85" y="80" fill="currentColor" font-size="12">b</text>
-                    <text x="8" y="65" fill="currentColor" font-size="12">h</text>
-                </svg>`,
-                f1: ["Lateral SA", "2h(l + b)"], f2: ["Total SA", "2(lb + bh + hl)"], f3: ["Volume", "l × b × h"]
-            },
-            {
-                name: "Cube",
-                svg: `<svg viewBox="0 0 100 100">
-                    <path d="M40,25 L40,65 L80,65" fill="none" stroke="rgba(255,255,255,0.2)" stroke-dasharray="4" stroke-width="1"/>
-                    <path d="M25,80 L40,65" fill="none" stroke="rgba(255,255,255,0.2)" stroke-dasharray="4" stroke-width="1"/>
-                    <polygon points="40,25 80,25 65,40 25,40" fill="rgba(255,255,255,0.3)" stroke="currentColor" stroke-width="1"/>
-                    <polygon points="65,40 80,25 80,65 65,80" fill="rgba(255,255,255,0.15)" stroke="currentColor" stroke-width="1"/>
-                    <polygon points="25,40 65,40 65,80 25,80" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="1"/>
-                    <text x="45" y="95" fill="currentColor" font-size="12">a</text>
-                </svg>`,
-                f1: ["Lateral SA", "4a²"], f2: ["Total SA", "6a²"], f3: ["Volume", "a³"]
-            },
-            {
-                name: "Cylinder",
-                svg: `<svg viewBox="0 0 100 100">
-                    <path d="M25,25 L25,75 A25,10 0 0,0 75,75 L75,25 Z" fill="url(#cylGrad)" stroke="currentColor" stroke-width="1"/>
-                    <ellipse cx="50" cy="25" rx="25" ry="10" fill="rgba(255,255,255,0.3)" stroke="currentColor" stroke-width="1"/>
-                    <path d="M25,75 A25,10 0 0,1 75,75" fill="none" stroke="rgba(255,255,255,0.2)" stroke-dasharray="4" stroke-width="1"/>
-                    <line x1="50" y1="25" x2="75" y2="25" stroke="currentColor" stroke-width="1"/>
-                    <text x="60" y="20" fill="currentColor" font-size="12">r</text>
-                    <line x1="85" y1="25" x2="85" y2="75" stroke="currentColor" stroke-dasharray="4" stroke-width="1"/>
-                    <text x="90" y="50" fill="currentColor" font-size="12">h</text>
-                </svg>`,
-                f1: ["Curved SA", "2πrh"], f2: ["Total SA", "2πr(r + h)"], f3: ["Volume", "πr²h"]
-            },
-            {
-                name: "Cone",
-                svg: `<svg viewBox="0 0 100 100">
-                    <path d="M25,75 A25,10 0 0,0 75,75 L50,20 Z" fill="url(#cylGrad)" stroke="currentColor" stroke-width="1"/>
-                    <path d="M25,75 A25,10 0 0,1 75,75" fill="none" stroke="rgba(255,255,255,0.2)" stroke-dasharray="4" stroke-width="1"/>
-                    <line x1="50" y1="20" x2="50" y2="75" stroke="rgba(255,255,255,0.5)" stroke-dasharray="4" stroke-width="1"/>
-                    <line x1="50" y1="75" x2="75" y2="75" stroke="rgba(255,255,255,0.8)" stroke-width="1"/>
-                    <text x="60" y="70" fill="currentColor" font-size="12">r</text>
-                    <text x="40" y="55" fill="currentColor" font-size="12">h</text>
-                    <text x="68" y="45" fill="currentColor" font-size="12">l</text>
-                </svg>`,
-                f1: ["Curved SA", "πrl"], f2: ["Total SA", "πr(l + r)"], f3: ["Volume", "⅓πr²h"]
-            },
-            {
-                name: "Sphere",
-                svg: `<svg viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="35" fill="url(#sphereGrad)" stroke="currentColor" stroke-width="1"/>
-                    <ellipse cx="50" cy="50" rx="35" ry="10" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1" stroke-dasharray="4"/>
-                    <circle cx="50" cy="50" r="2" fill="currentColor"/>
-                    <line x1="50" y1="50" x2="85" y2="50" stroke="currentColor" stroke-width="1"/>
-                    <text x="65" y="45" fill="currentColor" font-size="12">r</text>
-                </svg>`,
-                f1: ["Surface Area", "4πr²"], f2: ["Total SA", "4πr²"], f3: ["Volume", "(4/3)πr³"]
-            },
-            {
-                name: "Hemisphere",
-                svg: `<svg viewBox="0 0 100 100">
-                    <path d="M15,50 A35,35 0 0,0 85,50 Z" fill="url(#sphereGrad)" stroke="currentColor" stroke-width="1"/>
-                    <ellipse cx="50" cy="50" rx="35" ry="10" fill="rgba(255,255,255,0.3)" stroke="currentColor" stroke-width="1"/>
-                    <circle cx="50" cy="50" r="2" fill="currentColor"/>
-                    <line x1="50" y1="50" x2="85" y2="50" stroke="currentColor" stroke-width="1"/>
-                    <text x="65" y="45" fill="currentColor" font-size="12">r</text>
-                </svg>`,
-                f1: ["Curved SA", "2πr²"], f2: ["Total SA", "3πr²"], f3: ["Volume", "⅔πr³"]
-            },
-            {
-                name: "Hollow Cylinder",
-                svg: `<svg viewBox="0 0 100 100">
-                    <path d="M15,20 L15,80 A35,10 0 0,0 85,80 L85,20 Z" fill="url(#cylGrad)" stroke="currentColor" stroke-width="1"/>
-                    <ellipse cx="50" cy="20" rx="35" ry="10" fill="rgba(255,255,255,0.2)" stroke="currentColor" stroke-width="1"/>
-                    <path d="M30,20 L30,80 A20,6 0 0,0 70,80 L70,20 Z" fill="url(#cylGradInner)" stroke="currentColor" stroke-width="1"/>
-                    <ellipse cx="50" cy="20" rx="20" ry="6" fill="#030305" stroke="currentColor" stroke-width="1"/>
-                    <path d="M30,80 A20,6 0 0,1 70,80" fill="none" stroke="rgba(255,255,255,0.1)" stroke-dasharray="2" stroke-width="1"/>
-                    <line x1="50" y1="20" x2="85" y2="20" stroke="rgba(255,255,255,0.8)" stroke-width="1"/>
-                    <text x="75" y="15" fill="currentColor" font-size="12">R</text>
-                    <line x1="50" y1="20" x2="70" y2="20" stroke="currentColor" stroke-width="1"/>
-                    <text x="55" y="32" fill="currentColor" font-size="12">r</text>
-                </svg>`,
-                f1: ["Curved SA", "2π(R + r)h"], f2: ["Total SA", "2π(R+r)h + 2π(R²-r²)"], f3: ["Volume", "π(R² - r²)h"]
-            },
-            {
-                name: "Frustum of Cone",
-                svg: `<svg viewBox="0 0 100 100">
-                    <path d="M30,25 L15,80 A35,10 0 0,0 85,80 L70,25 Z" fill="url(#cylGrad)" stroke="currentColor" stroke-width="1"/>
-                    <ellipse cx="50" cy="25" rx="20" ry="6" fill="rgba(255,255,255,0.3)" stroke="currentColor" stroke-width="1"/>
-                    <path d="M15,80 A35,10 0 0,1 85,80" fill="none" stroke="rgba(255,255,255,0.2)" stroke-dasharray="4" stroke-width="1"/>
-                    <line x1="50" y1="25" x2="50" y2="80" stroke="rgba(255,255,255,0.5)" stroke-dasharray="4" stroke-width="1"/>
-                    <line x1="50" y1="25" x2="70" y2="25" stroke="rgba(255,255,255,0.8)" stroke-width="1"/>
-                    <line x1="50" y1="80" x2="85" y2="80" stroke="rgba(255,255,255,0.8)" stroke-width="1"/>
-                    <text x="60" y="20" fill="currentColor" font-size="12">r</text>
-                    <text x="70" y="75" fill="currentColor" font-size="12">R</text>
-                </svg>`,
-                f1: ["Curved SA", "πl(R + r)"], f2: ["Total SA", "πl(R+r) + πR² + πr²"], f3: ["Volume", "⅓πh(R² + r² + Rr)"]
-            }
+            { id: "Cuboid", name: "Cuboid", f1: ["Lateral SA", "2h(l + b)"], f2: ["Total SA", "2(lb + bh + hl)"], f3: ["Volume", "l × b × h"] },
+            { id: "Cube", name: "Cube", f1: ["Lateral SA", "4a²"], f2: ["Total SA", "6a²"], f3: ["Volume", "a³"] },
+            { id: "Cylinder", name: "Cylinder", f1: ["Curved SA", "2πrh"], f2: ["Total SA", "2πr(r + h)"], f3: ["Volume", "πr²h"] },
+            { id: "Cone", name: "Cone", f1: ["Curved SA", "πrl"], f2: ["Total SA", "πr(l + r)"], f3: ["Volume", "⅓πr²h"] },
+            { id: "Sphere", name: "Sphere", f1: ["Surface Area", "4πr²"], f2: ["Total SA", "4πr²"], f3: ["Volume", "(4/3)πr³"] },
+            { id: "Hemisphere", name: "Hemisphere", f1: ["Curved SA", "2πr²"], f2: ["Total SA", "3πr²"], f3: ["Volume", "⅔πr³"] },
+            { id: "HollowCylinder", name: "Hollow Cylinder", f1: ["Curved SA", "2π(R + r)h"], f2: ["Total SA", "2π(R+r)h + 2π(R²-r²)"], f3: ["Volume", "π(R² - r²)h"] },
+            { id: "Frustum", name: "Frustum of Cone", f1: ["Curved SA", "πl(R + r)"], f2: ["Total SA", "πl(R+r) + πR² + πr²"], f3: ["Volume", "⅓πh(R² + r² + Rr)"] }
         ];
 
         let html3D = '';
         data3D.forEach(item => {
             html3D += `<div class="shape-card">
                 <h3 class="shape-title">${item.name}</h3>
-                <div class="shape-img">${item.svg}</div>
+                <div id="model-${item.id}" class="three-container"></div>
                 ${item.f1[0] ? `<div class="formula-group"><span>${item.f1[0]}</span><span>${item.f1[1]}</span></div>` : ''}
                 ${item.f2[0] ? `<div class="formula-group"><span>${item.f2[0]}</span><span>${item.f2[1]}</span></div>` : ''}
                 ${item.f3[0] ? `<div class="formula-group"><span>${item.f3[0]}</span><span>${item.f3[1]}</span></div>` : ''}
             </div>`;
         });
         grid3d.innerHTML = html3D;
+
+        // --- TRUE 3D ENGINE (THREE.JS) LOGIC ---
+        let threeInitialized = false;
+        let activeRenderers = [];
+
+        function createGeometry(id) {
+            switch(id) {
+                // Cuboid explicitly made longer than the cube to show a distinct difference
+                case 'Cuboid': return new THREE.BoxGeometry(3.5, 1.5, 2); 
+                case 'Cube': return new THREE.BoxGeometry(2.2, 2.2, 2.2);
+                case 'Cylinder': return new THREE.CylinderGeometry(1.2, 1.2, 2.8, 32);
+                case 'Cone': return new THREE.ConeGeometry(1.5, 3, 32);
+                case 'Sphere': return new THREE.SphereGeometry(1.6, 32, 32);
+                case 'Hemisphere': 
+                    const hemiGroup = new THREE.Group();
+                    const sg = new THREE.SphereGeometry(1.6, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+                    const cg = new THREE.CircleGeometry(1.6, 32);
+                    return { isGroup: true, geom1: sg, geom2: cg }; // Custom handling for complex shape
+                case 'HollowCylinder':
+                    const shape = new THREE.Shape();
+                    shape.absarc(0, 0, 1.6, 0, Math.PI * 2, false);
+                    const hole = new THREE.Path();
+                    hole.absarc(0, 0, 1.1, 0, Math.PI * 2, true);
+                    shape.holes.push(hole);
+                    const ext = new THREE.ExtrudeGeometry(shape, { depth: 2.8, bevelEnabled: false, curveSegments: 32 });
+                    ext.center();
+                    ext.rotateX(Math.PI / 2);
+                    return ext;
+                case 'Frustum': return new THREE.CylinderGeometry(0.8, 1.6, 2.8, 32);
+            }
+        }
+
+        function buildMesh(id, material, edgeMaterial) {
+            const data = createGeometry(id);
+            if (data.isGroup) {
+                const group = new THREE.Group();
+                
+                const mesh1 = new THREE.Mesh(data.geom1, material);
+                mesh1.add(new THREE.LineSegments(new THREE.EdgesGeometry(data.geom1), edgeMaterial));
+                
+                const mesh2 = new THREE.Mesh(data.geom2, material);
+                mesh2.rotation.x = Math.PI / 2;
+                mesh2.add(new THREE.LineSegments(new THREE.EdgesGeometry(data.geom2), edgeMaterial));
+                
+                group.add(mesh1);
+                group.add(mesh2);
+                return group;
+            } else {
+                const mesh = new THREE.Mesh(data, material);
+                const wireframe = new THREE.LineSegments(new THREE.EdgesGeometry(data), edgeMaterial);
+                mesh.add(wireframe);
+                return mesh;
+            }
+        }
+
+        function init3DModels() {
+            if (threeInitialized) return;
+            threeInitialized = true;
+
+            // Glossy holographic glass material
+            const material = new THREE.MeshPhysicalMaterial({
+                color: 0x7000ff, metalness: 0.2, roughness: 0.1,
+                transparent: true, opacity: 0.6, transmission: 0.5, side: THREE.DoubleSide
+            });
+            const edgeMaterial = new THREE.LineBasicMaterial({ color: 0x00f2fe, transparent: true, opacity: 0.8 });
+
+            data3D.forEach(item => {
+                const container = document.getElementById(`model-${item.id}`);
+                if (!container) return;
+
+                const scene = new THREE.Scene();
+                const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+                camera.position.set(3, 4, 6);
+
+                const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+                renderer.setSize(container.clientWidth, container.clientHeight);
+                renderer.setPixelRatio(window.devicePixelRatio);
+                container.appendChild(renderer.domElement);
+
+                // Lighting to show depth
+                scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+                const directional = new THREE.DirectionalLight(0xffffff, 0.8);
+                directional.position.set(5, 10, 7);
+                scene.add(directional);
+
+                // Add constructed shape to scene
+                const mesh = buildMesh(item.id, material, edgeMaterial);
+                scene.add(mesh);
+
+                // Add interactive orbit controls
+                const controls = new THREE.OrbitControls(camera, renderer.domElement);
+                controls.enableZoom = false; // Disabled so mobile scrolling still works outside canvas
+                controls.enablePan = false;
+                controls.autoRotate = true; // Slowly spins to prove it is 3D
+                controls.autoRotateSpeed = 2.0;
+
+                activeRenderers.push({ renderer, camera, container });
+
+                function animate() {
+                    requestAnimationFrame(animate);
+                    controls.update();
+                    renderer.render(scene, camera);
+                }
+                animate();
+            });
+        }
 
         // --- TAB LOGIC ---
         const title = document.getElementById('main-title');
@@ -410,9 +363,11 @@
             document.getElementById(`grid-${tabName}`).classList.add('active-grid');
             title.style.background = tabConfig[tabName].gradient;
             title.style.webkitBackgroundClip = 'text';
+
+            if (tabName === '3d') init3DModels(); // Initialize 3D only when tab is clicked to save memory
         };
 
-        // --- BACKGROUND PARTICLES ---
+        // --- BACKGROUND PARTICLES & RESIZE EVENT ---
         const canvas = document.getElementById('canvas-bg');
         const ctx = canvas.getContext('2d');
         let width, height, particles = [];
@@ -424,7 +379,16 @@
         window.addEventListener('touchmove', (e) => { pointer.x = e.touches[0].clientX; pointer.y = e.touches[0].clientY; });
         window.addEventListener('touchend', () => { pointer.x = null; pointer.y = null; });
 
-        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; initParticles(); }
+        function resize() { 
+            width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; initParticles(); 
+            
+            // Re-calculate 3D canvases on window resize
+            activeRenderers.forEach(r => {
+                r.camera.aspect = r.container.clientWidth / r.container.clientHeight;
+                r.camera.updateProjectionMatrix();
+                r.renderer.setSize(r.container.clientWidth, r.container.clientHeight);
+            });
+        }
         window.addEventListener('resize', resize);
         
         class Particle {
